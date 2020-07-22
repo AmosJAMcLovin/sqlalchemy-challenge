@@ -9,6 +9,9 @@ from flask import Flask, jsonify
 
 import datetime as dt 
 
+###############################
+# Database Setup
+###############################
 engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 
 #reflect an existing database into a new model
@@ -23,6 +26,7 @@ Station = Base.classes.Station
 #Create session
 session = Session(engine)
 
+#####################
 #Flask Setup
 #####################
 app = Flask(__name__)
@@ -43,6 +47,7 @@ def calc_temps(start_date, end_date):
     return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
 
+######################
 #Flask Routes
 ######################
 
@@ -58,12 +63,14 @@ def main():
         f"/api/v1.0/<start>/<end>"
     )
 
+#Route to precipitation
 @app.route("/api/v1.0/precipitation")
 def precipitation():
 
     """Return the JSON representation of your dictionary."""
     print("Received Precipitation api request.")
     
+    #Query dates
     final_date_query = session.query(func.max(func.strftime("%Y-%m-%d", Measurement.date))).all()
     max_date_string = final_date_query[0][0]
     max_date = dt.datetime.strptime(max_date_string, "%Y-%m-%d")
@@ -76,8 +83,10 @@ def precipitation():
     results_dict = {}
     for result in precipitation_data:
         results_dict[result[0]] = result[1]
+    
     return jsonify(results_dict)
 
+#Route to stations
 @app.route("/api/v1.0/stations")
 def stations():
 
@@ -87,7 +96,7 @@ def stations():
 
     stations = session.query(Station).all()
     
-    #station dictionary list
+    # Create a dictionary from the row data and append to a list of stations_list
     stations_list = []
     for station in stations:
         station_dict = {}
@@ -98,8 +107,10 @@ def stations():
         station_dict["longitude"] = station.longitude
         station_dict["elevation"] = station.elevation
         stations_list.append(station_dict)
+    
     return jsonify(all_passengers)
 
+#Route to tobs (Temperature Observations)
 @app.route("/api/v1.0/tobs")
 def tobs():
 
@@ -117,7 +128,7 @@ def tobs():
     results = session.query(Measurements).\
         filter(func.strftime("%Y-%m-%d", Measurement.date) >= begin_date).all()
     
-    #tobs dictionary list
+    # Create a dictionary from the row data and append to a list of tobs_list
     tobs_list = []
     for result in results:
         tobs_dict = {}
@@ -125,8 +136,9 @@ def tobs():
         tobs_dict["station"] = result.station
         tobs_dict["tobs"] = result.tobs
         tobs_list.append(tobs_dict)
+    
     return jsonify(tobs_list)
-
+# Route to <start>
 @app.route("/api/v1.0/<start>")
 def start(start):
 
@@ -147,7 +159,7 @@ def start(start):
     return_list.append({'Observation': 'TMAX', 'Temperature': temps[0][0]})
 
     return jsonify(return_list)
-
+# Route to <start>/<end>
 @app.route("/api/v1.0/<start>/<end>")
 def start_end(start, end):
     """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range."""
