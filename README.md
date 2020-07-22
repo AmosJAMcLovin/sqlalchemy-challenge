@@ -83,3 +83,19 @@ Routes
 Hints
 You will need to join the station and measurement tables for some of the queries.
 Use Flask jsonify to convert your API data into a valid JSON response object.
+
+**Temperature Analysis (optional)**
+
+
+The starter notebook contains a function called calc_temps that will accept a start date and end date in the format %Y-%m-%d. The function will return the minimum, average, and maximum temperatures for that range of dates.
+
+
+Use the calc_temps function to calculate the min, avg, and max temperatures for your trip using the matching dates from the previous year (i.e., use "2017-01-01" if your trip start date was "2018-01-01").
+
+
+Plot the min, avg, and max temperature from your previous query as a bar chart.
+    
+Use the average temperature as the bar height.
+Use the peak-to-peak (TMAX-TMIN) value as the y error bar (YERR).
+
+![Temperature](Images/temperature.png)
